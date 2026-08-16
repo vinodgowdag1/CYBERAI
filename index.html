@@ -504,9 +504,46 @@
                
                <label class="olbl"><i class="fa-solid fa-lock me-1"></i>Password</label>
                <input class="oinp" type="password" id="loginPass" placeholder="Enter your password" value="">
+
+               <!-- FORGOT PASSWORD LINK -->
+               <div class="d-flex justify-content-end mt-2" id="forgotPassWrap">
+                  <button class="btn btn-link text-cyan p-0 text-decoration-none" style="font-size:.78rem" onclick="toggleForgotPass(true)">
+                     <i class="fa-solid fa-key me-1"></i>Forgot Password?
+                  </button>
+               </div>
                
                <button class="bgrd btn w-100 py-3 fw-semibold fs-6 mt-4" id="loginBtn" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket me-2"></i>Log In as System Owner</button>
             </div>
+
+            <!-- FORGOT / RESET PASSWORD FORM -->
+            <div id="fForgot" style="display:none">
+               <div id="forgotErr" class="err-msg"><i class="fa-solid fa-circle-exclamation me-1"></i><span id="forgotErrMsg">Verification Failed. Full Name or Email does not match.</span></div>
+               
+               <div class="alert alert-warning border-0 p-3 mb-3" style="background:rgba(255,183,3,0.08);border:1px solid rgba(255,183,3,0.2)!important;border-radius:10px;font-size:.78rem;color:var(--cy-yellow)">
+                  <i class="fa-solid fa-user-check me-1"></i> <strong>Identity Verification:</strong> Enter your registered Owner Name & Email to reset your password.
+               </div>
+
+               <label class="olbl"><i class="fa-regular fa-user me-1"></i>Registered Owner Full Name</label>
+               <input class="oinp" type="text" id="forgotName" placeholder="e.g. Dr. Sarah Connor" value="">
+
+               <label class="olbl"><i class="fa-regular fa-envelope me-1"></i>Registered Owner Email Address</label>
+               <input class="oinp" type="email" id="forgotEmail" placeholder="e.g. owner@cyber-ai.org" value="">
+
+               <label class="olbl"><i class="fa-solid fa-lock me-1"></i>New Password</label>
+               <input class="oinp" type="password" id="forgotNewPass" placeholder="Enter new password" value="">
+
+               <label class="olbl"><i class="fa-solid fa-shield-halved me-1"></i>Confirm New Password</label>
+               <input class="oinp" type="password" id="forgotConfirmPass" placeholder="Confirm new password" value="">
+
+               <button class="bgrd btn w-100 py-3 fw-semibold fs-6 mt-4" onclick="doResetPassword()"><i class="fa-solid fa-key me-2"></i>Reset & Save New Password</button>
+
+               <div class="text-center mt-3">
+                  <button class="btn btn-link text-secondary p-0 text-decoration-none" style="font-size:.78rem" onclick="toggleForgotPass(false)">
+                     <i class="fa-solid fa-arrow-left me-1"></i>Back to System Owner Login
+                  </button>
+               </div>
+            </div>
+
          </div>
       </div>
 

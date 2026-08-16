@@ -1215,6 +1215,7 @@ function renderAuthGateUI() {
    const loginBtn = document.getElementById('loginBtn');
    const title = document.getElementById('authGateTitle');
    const resetOwnerWrap = document.getElementById('resetOwnerWrap');
+   const forgotPassWrap = document.getElementById('forgotPassWrap');
 
    // Check LocalStorage for registered Owner credentials
    registeredUsers = JSON.parse(localStorage.getItem('cyber_ai_owner_cred')) || [];
@@ -1225,6 +1226,7 @@ function renderAuthGateUI() {
       const hiddenEmail = maskEmail(owner.email);
       if (nameWrap) nameWrap.style.display = 'none';
       if (resetOwnerWrap) resetOwnerWrap.style.display = 'none'; // REMOVE RE-REGISTER / PREVIOUS OPTIONS
+      if (forgotPassWrap) forgotPassWrap.style.display = 'flex'; // SHOW FORGOT PASSWORD OPTION
       if (bannerText) bannerText.innerHTML = `<strong>System Owner Login:</strong> Only the registered System Owner (<code>${hiddenEmail}</code>) can log in to view device threats.`;
       if (loginBtn) loginBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket me-2"></i>Log In as System Owner';
       if (title) title.textContent = 'System Owner Login';
@@ -1232,9 +1234,104 @@ function renderAuthGateUI() {
       // NEW DEVICE / FIRST OPEN -> ASK TO SET OWNER CREDENTIALS FIRST!
       if (nameWrap) nameWrap.style.display = 'block';
       if (resetOwnerWrap) resetOwnerWrap.style.display = 'none';
+      if (forgotPassWrap) forgotPassWrap.style.display = 'none';
       if (bannerText) bannerText.innerHTML = `<strong>First Time Setup:</strong> Register & set your exclusive System Owner credentials below before accessing device command.`;
       if (loginBtn) loginBtn.innerHTML = '<i class="fa-solid fa-user-plus me-2"></i>Register & Set System Owner Credentials';
       if (title) title.textContent = 'Initial System Owner Setup';
+   }
+}
+
+function toggleForgotPass(showForgot) {
+   const fLogin = document.getElementById('fLogin');
+   const fForgot = document.getElementById('fForgot');
+   const title = document.getElementById('authGateTitle');
+   const loginErr = document.getElementById('loginErr');
+   const forgotErr = document.getElementById('forgotErr');
+   const loginSuccessAlert = document.getElementById('loginSuccessAlert');
+
+   if (loginErr) loginErr.style.display = 'none';
+   if (forgotErr) forgotErr.style.display = 'none';
+   if (loginSuccessAlert) loginSuccessAlert.style.display = 'none';
+
+   if (showForgot) {
+      if (fLogin) fLogin.style.display = 'none';
+      if (fForgot) fForgot.style.display = 'block';
+      if (title) title.textContent = 'Reset System Owner Password';
+   } else {
+      if (fForgot) fForgot.style.display = 'none';
+      if (fLogin) fLogin.style.display = 'block';
+      renderAuthGateUI();
+   }
+}
+
+function doResetPassword() {
+   const nameEl = document.getElementById('forgotName');
+   const emailEl = document.getElementById('forgotEmail');
+   const newPassEl = document.getElementById('forgotNewPass');
+   const confirmPassEl = document.getElementById('forgotConfirmPass');
+   
+   const name = nameEl ? nameEl.value.trim() : '';
+   const email = emailEl ? emailEl.value.trim() : '';
+   const newPass = newPassEl ? newPassEl.value : '';
+   const confirmPass = confirmPassEl ? confirmPassEl.value : '';
+
+   const forgotErr = document.getElementById('forgotErr');
+   const forgotErrMsg = document.getElementById('forgotErrMsg');
+
+   if (!name || !email || !newPass || !confirmPass) {
+      if (forgotErrMsg) forgotErrMsg.textContent = 'Please fill in all identity verification and new password fields.';
+      if (forgotErr) forgotErr.style.display = 'block';
+      return;
+   }
+
+   if (newPass !== confirmPass) {
+      if (forgotErrMsg) forgotErrMsg.textContent = 'New Password and Confirm Password do not match.';
+      if (forgotErr) forgotErr.style.display = 'block';
+      return;
+   }
+
+   registeredUsers = JSON.parse(localStorage.getItem('cyber_ai_owner_cred')) || [];
+
+   if (!registeredUsers || registeredUsers.length === 0) {
+      if (forgotErrMsg) forgotErrMsg.textContent = 'No System Owner registered on this device yet. Please register first.';
+      if (forgotErr) forgotErr.style.display = 'block';
+      return;
+   }
+
+   const owner = registeredUsers[0];
+   if (owner.email.toLowerCase() === email.toLowerCase() && owner.name.toLowerCase() === name.toLowerCase()) {
+      owner.pass = newPass;
+      registeredUsers = [owner];
+      localStorage.setItem('cyber_ai_owner_cred', JSON.stringify(registeredUsers));
+
+      if (forgotErr) forgotErr.style.display = 'none';
+
+      // Reset inputs
+      if (nameEl) nameEl.value = '';
+      if (emailEl) emailEl.value = '';
+      if (newPassEl) newPassEl.value = '';
+      if (confirmPassEl) confirmPassEl.value = '';
+
+      // Switch back to login form
+      toggleForgotPass(false);
+
+      // Pre-fill email and new password in login inputs
+      const loginEmail = document.getElementById('loginEmail');
+      const loginPass = document.getElementById('loginPass');
+      if (loginEmail) loginEmail.value = owner.email;
+      if (loginPass) loginPass.value = newPass;
+
+      const loginSuccessAlert = document.getElementById('loginSuccessAlert');
+      const loginSuccessMsg = document.getElementById('loginSuccessMsg');
+      if (loginSuccessAlert && loginSuccessMsg) {
+         loginSuccessMsg.textContent = 'Password reset successfully! Please click Log In as System Owner below to proceed.';
+         loginSuccessAlert.style.display = 'block';
+      }
+
+      showNotification('PASSWORD RESET SUCCESSFUL', 'System Owner password has been updated. Please log in.', 'safe');
+   } else {
+      if (forgotErrMsg) forgotErrMsg.innerHTML = `<i class="fa-solid fa-lock me-1"></i> <strong>Verification Failed:</strong> Owner Name or Email does not match the registered System Owner account.`;
+      if (forgotErr) forgotErr.style.display = 'block';
    }
 }
 
